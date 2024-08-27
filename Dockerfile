@@ -18,11 +18,13 @@ RUN wget -qO- https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries/apach
 RUN wget -qO- https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | tar xvz -C /opt/maven
 
 # Set environment variables for JDK installations
+ENV JAVA_VERSION ""
 ENV JAVA_HOME_8 /opt/jdk/jdk8u312-b07
 ENV JAVA_HOME_11 /opt/jdk/jdk-11.0.12+7
 ENV JAVA_HOME_17 /opt/jdk/jdk-17.0.2+8
 
 # Set environment variables for Maven installations
+ENV MAVEN_VERSION ""
 ENV MAVEN_HOME_363 /opt/maven/apache-maven-3.6.3
 ENV MAVEN_HOME_381 /opt/maven/apache-maven-3.8.1
 ENV MAVEN_HOME_354 /opt/maven/apache-maven-3.5.4
