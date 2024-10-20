@@ -13,20 +13,27 @@ I'll use Maven to build the Java project.
   ```bash
   git submodule init
   git submodule update
-  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-test .
+  # this image supports both multi java and maven support along with specific nodejs and npm version
+  docker build -t registry.buildpiper.in/maven-execute:npm-support .
+  # this image supports maven versions (3.6.3,3.8.1,3.5.4) and jdk versions (8,11,17)
+  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-air .
+  # this image supports maven versions (3.6.3,3.8.1,3.5.4) and jdk versions (8,11,17,21)
+  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-21 .
+  # this image supports maven versions (3.6.3,3.8.1,3.5.4) and jdk versions (8,11,17,21) with dynamic variables
+  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-21-vars .
   ```
 
 * Do local testing via the image only
 
   ```bash
   # Build code with default settings 
-  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ registry.buildpiper.in/maven-execute:multi-jdk-test
+  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ registry.buildpiper.in/maven-execute:multi-jdk-21
 
   # Only compile the code
-  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ -e INSTRUCTION=compile registry.buildpiper.in/maven-execute:multi-jdk-test
+  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ -e INSTRUCTION=compile registry.buildpiper.in/maven-execute:multi-jdk-21
 
   # Build code with specific JDK and Maven versions
-  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ -e JAVA_VERSION=11 -e MAVEN_VERSION=3.8.1 registry.buildpiper.in/maven-execute:multi-jdk-test
+  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ -e JAVA_VERSION=11 -e MAVEN_VERSION=3.8.1 registry.buildpiper.in/maven-execute:multi-jdk-21
   ```
 
 ## Environment Variables Example
@@ -76,3 +83,10 @@ VALIDATION_FAILURE_ACTION=WARNING,FAILURE
 - If no values are provided for `JAVA_VERSION` or `MAVEN_VERSION`, the script will default to JDK 8 and Maven 3.6.3.
 - If incorrect values are supplied, the script will display usage instructions, defaulting to the predefined versions.
 - The environment variables allow for flexible and customized build configurations, ensuring compatibility across different JDK and Maven versions.
+
+## References
+
+[JDK-8](https://github.com/adoptium/temurin8-binaries/releases)
+[JDK-11](https://github.com/adoptium/temurin11-binaries/releases)
+[JDK-17](https://github.com/adoptium/temurin17-binaries/releases)
+[JDK-21](https://github.com/adoptium/temurin21-binaries/releases)
