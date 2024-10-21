@@ -52,6 +52,9 @@ if [ -n "$SOURCE_VARIABLE_REPO" ]; then
         "3.5.4")
             export MAVEN_HOME=$MAVEN_HOME_354
             ;;
+        "3.9.9")
+            export MAVEN_HOME=$MAVEN_HOME_399
+            ;;
         *)
             logErrorMessage "Unsupported MAVEN_VERSION: $MAVEN_VERSION"
             exit 1
@@ -65,8 +68,8 @@ if [ -n "$SOURCE_VARIABLE_REPO" ]; then
     echo "Using JDK version: $JAVA_VERSION ($JAVA_HOME)"
     echo "Using Maven version: $MAVEN_VERSION ($MAVEN_HOME)"
 else
-    logErrorMessage "SOURCE_VARIABLE_REPO is not defined. Skipping fetching details from $SOURCE_VARIABLE_REPO."
-    exit 1
+    logErrorMessage "SOURCE_VARIABLE_REPO is not defined. Skipping fetching details from SOURCE_VARIABLE_REPO."
+    # exit 1
 fi
 
 # Execute the Maven command
