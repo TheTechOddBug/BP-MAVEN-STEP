@@ -11,7 +11,7 @@ display_usage() {
   echo "# - JAVA_VERSION: Choose from 8, 11, 17, or 21 (default: 8)"
   echo "#   Example: JAVA_VERSION=11"
   echo "#"
-  echo "# - MAVEN_VERSION: Choose from 3.6.3, 3.8.1, or 3.5.4 (default: 3.6.3)"
+  echo "# - MAVEN_VERSION: Choose from 3.6.3, 3.8.1, 3.9.9 or 3.5.4 (default: 3.6.3)"
   echo "#   Example: MAVEN_VERSION=3.8.1"
   echo "#"
   echo "# If no values are provided, the script will default to JDK 8 and Maven 3.6.3."
@@ -31,7 +31,7 @@ if [ "$JAVA_VERSION" != "8" ] && [ "$JAVA_VERSION" != "11" ] && [ "$JAVA_VERSION
 fi
 
 # Check for unsupported MAVEN_VERSION
-if [ "$MAVEN_VERSION" != "3.6.3" ] && [ "$MAVEN_VERSION" != "3.8.1" ] && [ "$MAVEN_VERSION" != "3.5.4" ]; then
+if [ "$MAVEN_VERSION" != "3.6.3" ] && [ "$MAVEN_VERSION" != "3.8.1" ] && [ "$MAVEN_VERSION" != "3.5.4" ] && [ "$MAVEN_VERSION" != "3.9.9" ]; then
   echo "Error: Unsupported MAVEN_VERSION: $MAVEN_VERSION"
   display_usage
   exit 1
@@ -61,6 +61,8 @@ elif [ "$MAVEN_VERSION" == "3.8.1" ]; then
   export MAVEN_HOME=$MAVEN_HOME_381
 elif [ "$MAVEN_VERSION" == "3.5.4" ]; then
   export MAVEN_HOME=$MAVEN_HOME_354
+elif [ "$MAVEN_VERSION" == "3.9.9" ]; then
+  export MAVEN_HOME=$MAVEN_HOME_399
 fi
 
 # Update PATH

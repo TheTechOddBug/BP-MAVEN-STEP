@@ -13,9 +13,14 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js and npm
+# RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+#     apt-get update && apt-get install -y nodejs && \
+#     npm install -g npm@9.5.1 && \
+#     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get update && apt-get install -y nodejs && \
-    npm install -g npm@9.5.1 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install multiple versions of JDK
@@ -30,7 +35,8 @@ RUN mkdir -p /opt/jdk && \
 RUN mkdir -p /opt/maven && \
     curl -L https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz | tar xvz -C /opt/maven && \
     curl -L https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz | tar xvz -C /opt/maven && \
-    curl -L https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | tar xvz -C /opt/maven
+    curl -L https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | tar xvz -C /opt/maven && \
+    curl -L https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz | tar xvz -C /opt/maven
 
 
 # Set environment variables for JDK installations
@@ -45,10 +51,11 @@ ENV MAVEN_VERSION ""
 ENV MAVEN_HOME_363=/opt/maven/apache-maven-3.6.3
 ENV MAVEN_HOME_381=/opt/maven/apache-maven-3.8.1
 ENV MAVEN_HOME_354=/opt/maven/apache-maven-3.5.4
+ENV MAVEN_HOME_399=/opt/maven/apache-maven-3.9.9
 
 # Add Maven binaries to PATH
 # ENV PATH $JAVA_HOME_8/bin:$MAVEN_HOME_363/bin:$JAVA_HOME_11/bin:$MAVEN_HOME_381/bin:$JAVA_HOME_17/bin:$MAVEN_HOME_354/bin:$PATH
-ENV PATH=$JAVA_HOME_8/bin:$JAVA_HOME_11/bin:$JAVA_HOME_17/bin:$JAVA_HOME_21/bin:$MAVEN_HOME_363/bin:$MAVEN_HOME_381/bin:$MAVEN_HOME_354/bin:$PATH
+ENV PATH=$JAVA_HOME_8/bin:$JAVA_HOME_11/bin:$JAVA_HOME_17/bin:$JAVA_HOME_21/bin:$MAVEN_HOME_363/bin:$MAVEN_HOME_381/bin:$MAVEN_HOME_354/bin:$MAVEN_HOME_399/bin:$PATH
 
 
 # Copy the script to switch JDK and Maven versions

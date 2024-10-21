@@ -8,7 +8,7 @@ function fetch_service_details() {
     # Ensure the directory exists
     if [ ! -d "$LOCAL_REPO_DIR" ]; then
         echo "Directory $LOCAL_REPO_DIR does not exist. Creating it..."
-        mkdir -p "$LOCAL_REPO_DIR" || { echo "Error: Failed to create directory $LOCAL_REPO_DIR."; return 1; }
+        mkdir -p "$LOCAL_REPO_DIR" || { echo "Failed to create directory $LOCAL_REPO_DIR."; return 1; }
     fi
 
     # Clone the repository directly to the specific branch with a depth of 2
