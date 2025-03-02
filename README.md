@@ -102,3 +102,6 @@ MAVEN Versions:
 [MAVEN-3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries) || 
 [MAVEN-3.8.1](https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries) || 
 [MAVEN-3.9.9](https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries)
+
+
+[How to remove downloading messages from Maven log output](https://blogs.itemis.com/en/in-a-nutshell-removing-artifact-messages-from-maven-log-output)

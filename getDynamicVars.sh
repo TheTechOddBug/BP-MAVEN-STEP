@@ -31,7 +31,7 @@ function fetch_service_details() {
     fi
 
     # Path to the mavenrepos.json file
-    local json_file="$LOCAL_REPO_DIR/mavenrepos.json"
+    local json_file="$LOCAL_REPO_DIR/$SOURCE_JSON_FILE"
 
     # Check if mavenrepos.json exists
     if [ ! -f "$json_file" ]; then
@@ -68,8 +68,9 @@ function fetch_service_details() {
     export JAVA_VERSION=$(echo "$service_data" | jq -r '.JAVA_VERSION')    
     export MAVEN_VERSION=$(echo "$service_data" | jq -r '.MAVEN_VERSION')
     export MAVEN_BUILD_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_BUILD_INSTRUCTION')
-    # Maven build instruction will be executed as INSTRUCTION variable is part of maven instruction
-    export INSTRUCTION="$MAVEN_BUILD_INSTRUCTION"
+    export MAVEN_DEPLOY_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_DEPLOY_INSTRUCTION')
+    export MAVEN_TEST_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_TEST_INSTRUCTION')
+    export MAVEN_CUSTOM_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_CUSTOM_INSTRUCTION')
 
     # Remove the cloned repository
     echo "Removing the cloned repository..."
