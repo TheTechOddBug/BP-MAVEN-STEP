@@ -1,16 +1,17 @@
 FROM mukulmj/custom-ubuntu-java-maven:2.0.3
 
-# Install NVM, Node.js 14, and pnpm (compatible version)
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
-    export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
-    nvm install 14 && \
-    nvm use 14 && \
-    npm install -g npm@6 && \
-    npm install -g pnpm@7 && \
-    node -v && \
-    npm -v && \
-    pnpm -v
+# Set up NVM environment variable
+ENV NVM_DIR="/root/.nvm"
+
+# Install NVM, Node.js v14.21.3, and a compatible version of pnpm
+RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
+    bash -c "source $NVM_DIR/nvm.sh && nvm install v14.21.3 && nvm use v14.21.3 && npm install -g pnpm@7" && \
+    echo 'export NVM_DIR="/root/.nvm"' >> /root/.bashrc && \
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /root/.bashrc && \
+    echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /root/.bashrc
+
+# Verify installation of Node.js and compatible pnpm version
+RUN bash -c "source $NVM_DIR/nvm.sh && node -v && nvm current && pnpm -v"
 
 # Old Details
 ENV SLEEP_DURATION 5s
