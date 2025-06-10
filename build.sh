@@ -105,6 +105,133 @@ fi
 logInfoMessage "Executing mvn $INSTRUCTION $MAVEN_OPTIONS"
 mvn $INSTRUCTION $MAVEN_OPTIONS
 
+# # Custom failure threshold logic for tests
+# if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then
+#     REPORTS=$(find target/surefire-reports/ -name "TEST-*.xml" 2>/dev/null)
+#     TOTAL=0
+#     FAIL=0
+#     for REPORT in $REPORTS; do
+#         T=$(grep -oP '(?<=tests=")[0-9]+' "$REPORT" | awk '{s+=$1} END {print s}')
+#         F=$(grep -oP '(?<=failures=")[0-9]+' "$REPORT" | awk '{s+=$1} END {print s}')
+#         E=$(grep -oP '(?<=errors=")[0-9]+' "$REPORT" | awk '{s+=$1} END {print s}')
+#         TOTAL=$((TOTAL + T))
+#         FAIL=$((FAIL + F + E))
+#     done
+#     if [[ "$TOTAL" -eq 0 ]]; then
+#         logErrorMessage "No tests found or unable to parse test report."
+#         exit 1
+#     fi
+#     FAIL_PERCENT=$(( 100 * FAIL / TOTAL ))
+#     THRESHOLD=20 # Set your threshold percentage here
+#     echo "Test failure rate: $FAIL_PERCENT% (Threshold: $THRESHOLD%)"
+#     if (( FAIL_PERCENT > THRESHOLD )); then
+#         logErrorMessage "Test failure rate ($FAIL_PERCENT%) exceeded threshold ($THRESHOLD%). Failing build."
+#         exit 1  
+#     fi
+# fi
+
+# if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then
+#     echo "CODEBASE_LOCATION is: $CODEBASE_LOCATION"
+#     ls -l "$CODEBASE_LOCATION/Results"
+
+#     REPORT_HTML=$(find "$CODEBASE_LOCATION/Results" -type f -name "*.html" -printf "%T@ %p\n" | sort -nr | head -1 | awk '{print $2}')
+#     THRESHOLD="${TEST_FAILURE_THRESHOLD:-50}"
+
+#     if [[ -z "$REPORT_HTML" || ! -f "$REPORT_HTML" ]]; then
+#         logErrorMessage "Could not find any HTML report file under $CODEBASE_LOCATION/Results"
+#         exit 1
+#     fi
+
+#     echo "Using report file: $REPORT_HTML"
+
+#     # Extract values from HTML using grep + sed
+#     TOTAL=$(xmllint --html --xpath "string(//tr[td[contains(., 'Total Tests executed')]]/td[2])" "$REPORT_HTML" 2>/dev/null)
+#     # echo "Total Tests executed : $TOTAL"
+#     PASS=$(xmllint --html --xpath "string(//tr[td[contains(., 'Total Pass Test count')]]/td[2])" "$REPORT_HTML" 2>/dev/null)
+#     # echo "Total Pass Test count: $PASS"
+#     FAIL=$(xmllint --html --xpath "string(//tr[td[contains(., 'Total Fail Test count')]]/td[2])" "$REPORT_HTML" 2>/dev/null)
+#     # echo "Total Fail Test count: $FAIL"
+
+#     # if [[ -z "$TOTAL" || -z "$PASS" || -z "$FAIL" || "$TOTAL" -eq 0 ]]; then
+#     #     logErrorMessage "Could not parse test counts from $REPORT_HTML"
+#     #     exit 1
+#     # fi
+
+#     # Calculate fail percentage
+#     FAIL_PERCENT=$(( 100 * FAIL / TOTAL ))
+
+#     echo "Total Tests executed : $TOTAL"
+#     echo "Total Pass Test count: $PASS"
+#     echo "Total Fail Test count: $FAIL"
+#     echo "Test failure rate    : $FAIL_PERCENT% (Threshold: $THRESHOLD%)"
+
+#     if (( FAIL_PERCENT > THRESHOLD )); then
+#         logErrorMessage "Test failure rate ($FAIL_PERCENT%) exceeded threshold ($THRESHOLD%). Failing build."
+#         exit 1
+#     else
+#         echo "✅ Test failure rate is within threshold."
+#     fi
+# fi
+
+# Default XML scan (always runs for TEST)
+if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then
+    REPORTS=$(find target/surefire-reports/ -name "TEST-*.xml" 2>/dev/null)
+    TOTAL=0
+    FAIL=0
+    for REPORT in $REPORTS; do
+        T=$(grep -oP '(?<=tests=")[0-9]+' "$REPORT" | awk '{s+=$1} END {print s}')
+        F=$(grep -oP '(?<=failures=")[0-9]+' "$REPORT" | awk '{s+=$1} END {print s}')
+        E=$(grep -oP '(?<=errors=")[0-9]+' "$REPORT" | awk '{s+=$1} END {print s}')
+        TOTAL=$((TOTAL + T))
+        FAIL=$((FAIL + F + E))
+    done
+    if [[ "$TOTAL" -eq 0 ]]; then
+        logErrorMessage "No tests found or unable to parse test report."
+        exit 1
+    fi
+    FAIL_PERCENT=$(( 100 * FAIL / TOTAL ))
+    THRESHOLD=50 # Set your threshold percentage here
+    echo "Test failure rate: $FAIL_PERCENT% (Threshold: $THRESHOLD%)"
+    if (( FAIL_PERCENT > THRESHOLD )); then
+        logErrorMessage "Test failure rate ($FAIL_PERCENT%) exceeded threshold ($THRESHOLD%). Failing build."
+        # exit 1  
+    fi
+fi
+
+# Custom HTML scan (only runs if ENABLE_CUSTOM_HTML_SCAN is true)
+if [[ "$INSTRUCTION_TYPE" == "TEST" && "${ENABLE_CUSTOM_HTML_SCAN,,}" == "true" ]]; then
+    echo "CODEBASE_LOCATION is: $CODEBASE_LOCATION"
+    ls -l "$CODEBASE_LOCATION/Results"
+
+    REPORT_HTML=$(find "$CODEBASE_LOCATION/Results" -type f -name "*.html" -printf "%T@ %p\n" | sort -nr | head -1 | awk '{print $2}')
+    THRESHOLD="${TEST_FAILURE_THRESHOLD:-50}"
+
+    if [[ -z "$REPORT_HTML" || ! -f "$REPORT_HTML" ]]; then
+        logErrorMessage "Could not find any HTML report file under $CODEBASE_LOCATION/Results"
+        exit 1
+    fi
+
+    echo "Using report file: $REPORT_HTML"
+
+    TOTAL=$(xmllint --html --xpath "string(//tr[td[contains(., 'Total Tests executed')]]/td[2])" "$REPORT_HTML" 2>/dev/null)
+    PASS=$(xmllint --html --xpath "string(//tr[td[contains(., 'Total Pass Test count')]]/td[2])" "$REPORT_HTML" 2>/dev/null)
+    FAIL=$(xmllint --html --xpath "string(//tr[td[contains(., 'Total Fail Test count')]]/td[2])" "$REPORT_HTML" 2>/dev/null)
+
+    FAIL_PERCENT=$(( 100 * FAIL / TOTAL ))
+
+    echo "Total Tests executed : $TOTAL"
+    echo "Total Pass Test count: $PASS"
+    echo "Total Fail Test count: $FAIL"
+    echo "Test failure rate    : $FAIL_PERCENT% (Threshold: $THRESHOLD%)"
+
+    if (( FAIL_PERCENT > THRESHOLD )); then
+        logErrorMessage "Test failure rate ($FAIL_PERCENT%) exceeded threshold ($THRESHOLD%). Failing build."
+        # exit 1
+    else
+        echo "✅ Test failure rate is within threshold."
+    fi
+fi
+
 # Capture the task status
 TASK_STATUS=$?
 

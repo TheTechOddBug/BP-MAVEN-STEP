@@ -1,5 +1,14 @@
 FROM mukulmj/custom-ubuntu-java-maven:2.0.3
 
+RUN apt-get update && apt-get install -y \
+    libxml2-utils \
+    findutils \
+    grep \
+    sed \
+    gawk \
+    coreutils \
+    bash
+
 # Set up NVM environment variable
 ENV NVM_DIR="/root/.nvm"
 
