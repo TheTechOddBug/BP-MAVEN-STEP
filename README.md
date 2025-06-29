@@ -42,13 +42,21 @@ I'll use Maven to build the Java project.
 
 ![Environment Variables Example](./maven-multi-jdk.png)
 
-```bash
-WORKSPACE=/bp/workspace
-INSTRUCTION=clean install
-MAVEN_VERSION=3.6.3,3.8.1,3.5.4,3.9.9
-JAVA_VERSION=8,11,17,21
-VALIDATION_FAILURE_ACTION=WARNING,FAILURE
-```
+| Variable                    | Description                               | Default    |
+| --------------------------- | ----------------------------------------- | ---------- |
+| `WORKSPACE`                 | Workspace directory containing code       | `/bp/workspace` |
+| `CODEBASE_DIR`              | Sub-directory within workspace            | `/`        |
+| `JAVA_VERSION`              | `8`, `11`, `17`, `21`                     | `8`        |
+| `MAVEN_VERSION`             | `3.6.3`, `3.8.1`, `3.5.4`, `3.9.9`        | `3.6.3`    |
+| `INSTRUCTION`               | Maven instruction (e.g., `clean install`) | `package`  |
+| `INSTRUCTION_TYPE`          | `BUILD`, `DEPLOY`, `TEST`, `CUSTOM`       | *`BUILD`*    |
+| `VALIDATION_FAILURE_ACTION` | `WARNING` or `FAILURE`                    | `WARNING`  |
+| `ENABLE_CUSTOM_HTML_SCAN`   | Enable parsing custom HTML test reports   | `false`    |
+| `TEST_FAILURE_THRESHOLD`    | Failure threshold (%)                     | `50`       |
+| `TEST_RESULT_DIR`           | Directory for test result files           | `/`        |
+| `SOURCE_VARIABLE_REPO`      | Repo for dynamic variables                | (Optional) |
+| `MAVEN_OPTIONS`  | any additional flags or parameters such as: -DskipTests=true |  (Optional)
+
 
 ## Runtime Environment Details
 
