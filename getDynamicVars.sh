@@ -1,3 +1,6 @@
+source /opt/buildpiper/shell-functions/functions.sh
+source /opt/buildpiper/shell-functions/proxy-handling.sh
+
 # Function to clone the repository, extract details, and set environment variables
 function fetch_service_details() {
     
@@ -11,16 +14,37 @@ function fetch_service_details() {
         mkdir -p "$LOCAL_REPO_DIR" || { echo "Failed to create directory $LOCAL_REPO_DIR."; return 1; }
     fi
 
-    # Clone the repository directly to the specific branch with a depth of 2
+    # Clone the repository with retry logic (3 attempts total)
     if [ ! -d "$LOCAL_REPO_DIR/.git" ]; then
         echo "Cloning repository $SOURCE_VARIABLE_REPO into $LOCAL_REPO_DIR on branch $APPLICATION_NAME with depth 2..."
 
-        # Run git clone and capture output and status
-        output=$(git clone --branch "$APPLICATION_NAME" --depth 2 "$SOURCE_VARIABLE_REPO" "$LOCAL_REPO_DIR" 2>&1)
-        clone_status=$?
+        attempt=1
+        max_attempts=3
+        wait_times=(0 30 60)
+
+        while [ $attempt -le $max_attempts ]; do
+            if [ $attempt -gt 1 ]; then
+                sleep_time=${wait_times[$((attempt-1))]}
+                echo "Retrying clone attempt $attempt after $sleep_time seconds..."
+                sleep "$sleep_time"
+            fi
+
+            echo "Attempt $attempt: Cloning..."
+            output=$(run_without_proxy_then_with_fallback git clone --branch "$APPLICATION_NAME" --depth 2 "$SOURCE_VARIABLE_REPO" "$LOCAL_REPO_DIR" 2>&1)
+            clone_status=$?
+
+            if [ $clone_status -eq 0 ]; then
+                echo "Clone successful on attempt $attempt."
+                break
+            else
+                echo "Clone attempt $attempt failed: $output"
+            fi
+
+            attempt=$((attempt + 1))
+        done
 
         if [ $clone_status -ne 0 ]; then
-            echo "Error: Cloning failed with exit code $clone_status. Output: $output"
+            echo "Error: Cloning failed after $max_attempts attempts."
             return 1
         fi
     else
@@ -31,7 +55,7 @@ function fetch_service_details() {
     fi
 
     # Path to the mavenrepos.json file
-    local json_file="$LOCAL_REPO_DIR/$SOURCE_JSON_FILE"
+    local json_file="$LOCAL_REPO_DIR/mavenrepos.json"
 
     # Check if mavenrepos.json exists
     if [ ! -f "$json_file" ]; then
@@ -41,15 +65,6 @@ function fetch_service_details() {
 
     # Find the service details in the JSON file
     echo "Extracting service details for $CODEBASE_DIR..."
-
-    # Function to get the deployment service name
-    function getDeploymentServiceName() {
-      DEPLOY_SERVICE_NAME=$(jq -r '.k8s_manifest[] | select(.k8s_manifest_type == "service") | .metadata.name' < "$SOURCE_DEPLOY_FILE_PATH")
-      echo "$DEPLOY_SERVICE_NAME"
-    }
-
-    # Get the deployment service name
-    DEPLOY_SERVICE_NAME=`getDeploymentServiceName`
 
     # Check if CODEBASE_DIR is not set or empty, use getServiceName to get a default value
     if [ -z "$CODEBASE_DIR" ]; then
@@ -77,4 +92,5 @@ function fetch_service_details() {
     rm -rf "$LOCAL_REPO_DIR" || { echo "Error: Failed to remove directory $LOCAL_REPO_DIR."; return 1; }
 
     echo "Environment variables have been set and repository has been removed."
+    bash /usr/local/bin/switch_versions.sh
 }

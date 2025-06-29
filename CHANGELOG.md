@@ -58,3 +58,73 @@ Here’s the updated change log for version `2.5.2.3` incorporating your additio
   - `fetch_service_details` function now executes based on `SOURCE_VARIABLE_REPO` and `INSTRUCTION` conditions.  
 
 ---
+
+**Tag:** `2.5.2.4`
+**Release Date:** *2025-06-30*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+## **Enhancements & New Additions:**
+
+### **1. Base Image Update**
+
+* **Updated base image:**
+
+  * `FROM registry.buildpiper.in/base-image/java-maven:2.0.5`
+* Modernized Java and Maven environment compatibility.
+
+### **2. New Entrypoint Script for Version Switching**
+
+* **Added `switch_versions.sh` as the main `ENTRYPOINT`:**
+
+  * Initializes Java and Maven version setup automatically during container start.
+  * When `fetch_service_details` is used, `switch_versions.sh` executes again to ensure environment consistency.
+* **Entrypoint Configuration:**
+
+  ```dockerfile
+  ENTRYPOINT ["/usr/local/bin/switch_versions.sh", "./build.sh"]
+  ```
+### **3. Improved Repository Cloning & Proxy Handling**
+
+* **Enhanced `getDynamicVars.sh`:**
+
+  * Implements multiple retry attempts when cloning repositories.
+  * Introduced dynamic proxy support:
+
+    * Uses proxy if cloning fails initially.
+    * Automatically removes proxy for specific commands that must bypass it.
+
+### **4. Dynamic Maven Instruction Selection**
+
+* Added logic to **switch Maven `INSTRUCTION` dynamically** based on `INSTRUCTION_TYPE` if `INSTRUCTION` is not explicitly set:
+
+  ```bash
+  if [ -z "$INSTRUCTION" ]; then
+      case "$INSTRUCTION_TYPE" in
+          "BUILD")  export INSTRUCTION=$MAVEN_BUILD_INSTRUCTION ;;
+          "DEPLOY") export INSTRUCTION=$MAVEN_DEPLOY_INSTRUCTION ;;
+          "TEST")   export INSTRUCTION=$MAVEN_TEST_INSTRUCTION ;;
+          "CUSTOM") export INSTRUCTION=$MAVEN_CUSTOM_INSTRUCTION ;;
+          *)
+              logErrorMessage "Unsupported $INSTRUCTION_TYPE: Executing default mvn $INSTRUCTION"
+              ;;
+      esac
+  fi
+  ```
+* Ensures consistent build/deploy/test workflows across pipelines.
+
+### **5. Test Result Management Enhancements**
+
+* **New Environment Variables:**
+
+  * `ENABLE_CUSTOM_HTML_SCAN`
+    Enables parsing of custom HTML reports to extract failed test cases.
+  * `TEST_FAILURE_THRESHOLD`
+    Configurable test failure threshold percentage (e.g., `50` for 50%).
+  * `TEST_RESULT_DIR`
+    Path to the directory containing test result files.
+
+### **6. Retained Enhancements from `2.5.2.3`**
+
+* Node.js & Package Manager support with `nvm`, `npm`, and `pnpm`.
+* `set_npmrc.sh` script for dynamic `.npmrc` management.
+* Enhanced Maven execution, error handling, and dynamic instruction selection logic.

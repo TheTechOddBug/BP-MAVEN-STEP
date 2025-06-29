@@ -1,4 +1,4 @@
-FROM mukulmj/custom-ubuntu-java-maven:2.0.3
+FROM registry.buildpiper.in/base-image/java-maven:2.0.5
 
 RUN apt-get update && apt-get install -y \
     libxml2-utils \
@@ -33,10 +33,9 @@ RUN chmod +x build.sh set_npmrc.sh getDynamicVars.sh
 
 ENV ENABLE_MAVEN_SILENT_MODE false
 ENV SOURCE_JSON_FILE mavenrepos.json
-
-ENV VALIDATION_FAILURE_ACTION WARNING    
+ENV VALIDATION_FAILURE_ACTION WARNING 
 ENV ACTIVITY_SUB_TASK_CODE MVN_EXECUTE
-ENTRYPOINT [ "./build.sh" ]
+ENTRYPOINT [ "/usr/local/bin/switch_versions.sh", "./build.sh" ]
 
 # Default command
 CMD ["bash"]
