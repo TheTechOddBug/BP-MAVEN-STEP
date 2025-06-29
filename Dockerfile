@@ -37,5 +37,4 @@ ENV VALIDATION_FAILURE_ACTION WARNING
 ENV ACTIVITY_SUB_TASK_CODE MVN_EXECUTE
 ENTRYPOINT [ "/usr/local/bin/switch_versions.sh", "./build.sh" ]
 
-# Default command
 CMD ["bash"]
