@@ -187,4 +187,25 @@ Here’s the updated change log for version `2.5.2.3` incorporating your additio
 
 ---
 
-If you want, I can also **provide the exact `getDynamicVars.sh` snippet updated** for fetching these new vars from `mavenrepos.json` so it’s production-ready for `2.5.2.5`.
+## Changelog
+
+**Tag:** `2.5.2.6`
+**Release Date:** *2025-09-02*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+### 🔄 Changes
+
+* Enhanced **Java & Maven version handling** logic:
+
+  * Default `JAVA_VERSION` and `MAVEN_VERSION` are now taken from the standard service configuration.
+  * If `INSTRUCTION_TYPE` is set to **`TEST`**, the system now dynamically overrides these values with `TEST_JAVA_VERSION` and `TEST_MAVEN_VERSION`.
+
+### ✅ Impact
+
+* Provides more flexibility in running test-specific builds.
+* Ensures proper environment alignment between build and test phases.
+
+### 📌 Notes
+
+* No breaking changes introduced.
+* Backward compatibility maintained for non-test instruction types.
