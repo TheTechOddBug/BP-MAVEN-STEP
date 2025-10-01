@@ -86,6 +86,17 @@ function fetch_service_details() {
     export MAVEN_DEPLOY_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_DEPLOY_INSTRUCTION')
     export MAVEN_TEST_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_TEST_INSTRUCTION')
     export MAVEN_CUSTOM_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_CUSTOM_INSTRUCTION')
+    export TEST_FAILURE_THRESHOLD=$(echo "$service_data" | jq -r '.TEST_FAILURE_THRESHOLD')
+    export TEST_RESULT_DIR=$(echo "$service_data" | jq -r '.TEST_RESULT_DIR')
+    export MAVEN_OPTIONS=$(echo "$service_data" | jq -r '.MAVEN_OPTIONS')
+    export TEST_JAVA_VERSION=$(echo "$service_data" | jq -r '.TEST_JAVA_VERSION')
+    export TEST_MAVEN_VERSION=$(echo "$service_data" | jq -r '.TEST_MAVEN_VERSION')
+
+    # Override versions if INSTRUCTION_TYPE=TEST
+    if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then
+      export JAVA_VERSION="$TEST_JAVA_VERSION"
+      export MAVEN_VERSION="$TEST_MAVEN_VERSION"
+    fi
 
     # Remove the cloned repository
     echo "Removing the cloned repository..."

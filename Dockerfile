@@ -1,4 +1,4 @@
-FROM registry.buildpiper.in/base-image/java-maven:2.0.5
+FROM registry.buildpiper.in/base-image/java-maven:2.0.7
 
 RUN apt-get update && apt-get install -y \
     libxml2-utils \
@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 
 # Set up NVM environment variable
 ENV NVM_DIR="/root/.nvm"
+ENV INSTRUCTION_TYPE="BUILD"
 
 # Install NVM, Node.js v14.21.3, and a compatible version of pnpm
 RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \

@@ -27,6 +27,7 @@ if [ -n "$SOURCE_VARIABLE_REPO" ]; then
     else
         logInfoMessage "Fetching details from $SOURCE_VARIABLE_REPO as INSTRUCTION is not provided."
         fetch_service_details
+        source /usr/local/bin/switch_versions.sh
     fi
 
 else

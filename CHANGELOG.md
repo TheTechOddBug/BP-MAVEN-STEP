@@ -128,3 +128,102 @@ Here’s the updated change log for version `2.5.2.3` incorporating your additio
 * Node.js & Package Manager support with `nvm`, `npm`, and `pnpm`.
 * `set_npmrc.sh` script for dynamic `.npmrc` management.
 * Enhanced Maven execution, error handling, and dynamic instruction selection logic.
+
+---
+
+**Tag:** `2.5.2.5`
+**Release Date:** *2025-08-05*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+## **Enhancements & New Additions:**
+
+### **1. Test Report Variable Enhancements**
+
+* **New dynamic environment variable fetching for test management:**
+
+  ```bash
+  export TEST_FAILURE_THRESHOLD=$(echo "$service_data" | jq -r '.TEST_FAILURE_THRESHOLD')
+  export TEST_RESULT_DIR=$(echo "$service_data" | jq -r '.TEST_RESULT_DIR')
+  export MAVEN_OPTIONS=$(echo "$service_data" | jq -r '.MAVEN_OPTIONS')
+  ```
+* **Improvements:**
+
+  * Fetches threshold, test result directory, and Maven options dynamically from `mavenrepos.json`.
+  * Supports per-service configuration for pipelines.
+  * Simplifies test management in multi-service/multi-module builds.
+
+
+### **2. Maven Repository-Driven Variable Resolution**
+
+* Extended `getDynamicVars.sh` and `fetch_service_details` to **fetch additional variables from Maven repository metadata**:
+
+  **Supported keys:**
+
+  * `TEST_FAILURE_THRESHOLD` → Controls max allowable test failures before marking pipeline as failed.
+  * `TEST_RESULT_DIR` → Points to directory containing test reports for parsing.
+  * `MAVEN_OPTIONS` → Allows passing additional Maven CLI flags dynamically.
+
+* **Behavior:**
+
+  * Defaults applied if variables are not set in the Maven repository.
+  * Integrated with **`switch_versions.sh`** to ensure environment consistency across builds and test report parsing.
+
+---
+
+### **3. Improved Test Report Management**
+
+* Test results can now be **evaluated dynamically** based on service-specific configurations.
+* Enhanced compatibility with **custom HTML reports** and **JUnit XML parsing**.
+* Can terminate the pipeline early if failure threshold is exceeded.
+
+---
+
+### **4. Retained Enhancements from `2.5.2.4`**
+
+* Node.js, npm, pnpm multi-version support.
+* Proxy-aware repository cloning with retry logic.
+* Dynamic Maven `INSTRUCTION` handling.
+* Entrypoint script `switch_versions.sh` for automatic Java/Maven version switching.
+
+---
+
+**Tag:** `2.5.2.6`
+**Release Date:** *2025-09-02*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+### 🔄 Changes
+
+* Enhanced **Java & Maven version handling** logic:
+
+  * Default `JAVA_VERSION` and `MAVEN_VERSION` are now taken from the standard service configuration.
+  * If `INSTRUCTION_TYPE` is set to **`TEST`**, the system now dynamically overrides these values with `TEST_JAVA_VERSION` and `TEST_MAVEN_VERSION`.
+
+### ✅ Impact
+
+* Provides more flexibility in running test-specific builds.
+* Ensures proper environment alignment between build and test phases.
+
+### 📌 Notes
+
+* No breaking changes introduced.
+* Backward compatibility maintained for non-test instruction types.
+
+---
+
+**Tag:** `2.5.2.7`
+**Release Date:** *2025-10-01*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+### 🔄 Changes
+
+* **[NEW]** Added Java version support for **22**, **23**, and **24**.
+
+### ✅ Impact
+
+* Expands supported Java ecosystem to the latest releases.
+* Enables builds and tests to leverage the most recent Java versions.
+
+### 📌 Notes
+
+* Fully backward compatible.
+* No changes required in existing configurations.
