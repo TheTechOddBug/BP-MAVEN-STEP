@@ -1,4 +1,4 @@
-FROM registry.buildpiper.in/base-image/java-maven:2.0.6
+FROM registry.buildpiper.in/base-image/java-maven:2.0.7
 
 RUN apt-get update && apt-get install -y \
     libxml2-utils \

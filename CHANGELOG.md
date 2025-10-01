@@ -187,8 +187,6 @@ Here’s the updated change log for version `2.5.2.3` incorporating your additio
 
 ---
 
-## Changelog
-
 **Tag:** `2.5.2.6`
 **Release Date:** *2025-09-02*
 **Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
@@ -209,3 +207,23 @@ Here’s the updated change log for version `2.5.2.3` incorporating your additio
 
 * No breaking changes introduced.
 * Backward compatibility maintained for non-test instruction types.
+
+---
+
+**Tag:** `2.5.2.7`
+**Release Date:** *2025-10-01*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+### 🔄 Changes
+
+* **[NEW]** Added Java version support for **22**, **23**, and **24**.
+
+### ✅ Impact
+
+* Expands supported Java ecosystem to the latest releases.
+* Enables builds and tests to leverage the most recent Java versions.
+
+### 📌 Notes
+
+* Fully backward compatible.
+* No changes required in existing configurations.
