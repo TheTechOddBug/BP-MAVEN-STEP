@@ -88,7 +88,8 @@ function fetch_service_details() {
     export MAVEN_CUSTOM_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_CUSTOM_INSTRUCTION')
     export TEST_FAILURE_THRESHOLD=$(echo "$service_data" | jq -r '.TEST_FAILURE_THRESHOLD')
     export TEST_RESULT_DIR=$(echo "$service_data" | jq -r '.TEST_RESULT_DIR')
-    export MAVEN_OPTIONS=$(echo "$service_data" | jq -r '.MAVEN_OPTIONS')
+    # Extract MAVEN_OPTIONS (may be null or empty)
+    MAVEN_OPTIONS=$(echo "$service_data" | jq -r '.MAVEN_OPTIONS // empty')
     export TEST_JAVA_VERSION=$(echo "$service_data" | jq -r '.TEST_JAVA_VERSION')
     export TEST_MAVEN_VERSION=$(echo "$service_data" | jq -r '.TEST_MAVEN_VERSION')
 

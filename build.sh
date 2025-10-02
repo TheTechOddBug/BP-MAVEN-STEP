@@ -54,6 +54,9 @@ if [ -z "$INSTRUCTION" ]; then
     TASK_STATUS=$?
 fi
 
+# Ensure it's empty if null or not present
+MAVEN_OPTIONS=${MAVEN_OPTIONS:-}
+
 # Execute the Maven command
 logInfoMessage "Executing mvn $INSTRUCTION $MAVEN_OPTIONS"
 mvn $INSTRUCTION $MAVEN_OPTIONS
