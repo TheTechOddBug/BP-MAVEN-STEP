@@ -92,6 +92,12 @@ function fetch_service_details() {
     MAVEN_OPTIONS=$(echo "$service_data" | jq -r '.MAVEN_OPTIONS // empty')
     export TEST_JAVA_VERSION=$(echo "$service_data" | jq -r '.TEST_JAVA_VERSION')
     export TEST_MAVEN_VERSION=$(echo "$service_data" | jq -r '.TEST_MAVEN_VERSION')
+    export MAVEN_SONAR_SCAN_INSTRUCTION=$(echo "$service_data" | jq -r '.MAVEN_SONAR_SCAN_INSTRUCTION')
+    export SONAR_URL=$(echo "$service_data" | jq -r '.SONAR_URL')
+    export ENCRYPTED_SONAR_TOKEN=$(echo "$service_data" | jq -r '.ENCRYPTED_SONAR_TOKEN')
+
+    # Decrypt the token using the getDecryptedCredential function
+    SONAR_TOKEN=$(getDecryptedCredential "$FERNET_KEY" "$ENCRYPTED_SONAR_TOKEN")
 
     # Override versions if INSTRUCTION_TYPE=TEST
     if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then

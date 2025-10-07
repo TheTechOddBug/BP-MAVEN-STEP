@@ -13,6 +13,8 @@ CODEBASE_LOCATION="${WORKSPACE}"/"${CODEBASE_DIR}"
 logInfoMessage "I'll $INSTRUCTION_TYPE the code available at [$CODEBASE_LOCATION]"
 sleep  $SLEEP_DURATION
 
+# saveTaskStatusNew ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE} "CODEBASE LOCATION SET" "Codebase path configured successfully"
+
 # Set the npmrc file default location
 set_npmrc
 
@@ -42,6 +44,7 @@ if [ -z "$INSTRUCTION" ]; then
         "DEPLOY") export INSTRUCTION=$MAVEN_DEPLOY_INSTRUCTION ;;
         "TEST")   export INSTRUCTION=$MAVEN_TEST_INSTRUCTION ;;
         "CUSTOM") export INSTRUCTION=$MAVEN_CUSTOM_INSTRUCTION ;;
+        "SONAR_SCAN" ) export INSTRUCTION=$MAVEN_SONAR_SCAN_INSTRUCTION ;;
         *) logErrorMessage "Unsupported $INSTRUCTION_TYPE: Executing default mvn $INSTRUCTION"
             ;;
     esac
@@ -57,13 +60,43 @@ fi
 # Ensure it's empty if null or not present
 MAVEN_OPTIONS=${MAVEN_OPTIONS:-}
 
-# Execute the Maven command
-logInfoMessage "Executing mvn $INSTRUCTION $MAVEN_OPTIONS"
-mvn $INSTRUCTION $MAVEN_OPTIONS
+# Determine suffix based on SONAR_TESTING_TYPE
+SONAR_SUFFIX=""
+case "$SONAR_TESTING_TYPE" in
+    Integration)
+        SONAR_SUFFIX="-it"
+        ;;
+    Unit)
+        SONAR_SUFFIX="-ut"
+        ;;
+    *)
+        SONAR_SUFFIX=""
+        ;;
+esac
+
+if [[ "$INSTRUCTION_TYPE" == "SONAR_SCAN" ]]; then
+    logInfoMessage "Executing Sonar Scan for project [$CODEBASE_DIR$SONAR_SUFFIX]"
+
+    # Log command safely (hide token)
+    logInfoMessage "mvn $INSTRUCTION $MAVEN_OPTIONS -Dsonar.projectKey=$CODEBASE_DIR$SONAR_SUFFIX -Dsonar.projectName=$CODEBASE_DIR$SONAR_SUFFIX -Dsonar.host.url=$SONAR_URL -Dsonar.login=******"
+
+    # Execute actual command
+    mvn $INSTRUCTION $MAVEN_OPTIONS \
+        -Dsonar.projectKey="${CODEBASE_DIR}${SONAR_SUFFIX}" \
+        -Dsonar.projectName="${CODEBASE_DIR}${SONAR_SUFFIX}" \
+        -Dsonar.host.url="$SONAR_URL" \
+        -Dsonar.login="$SONAR_TOKEN"
+else
+    logInfoMessage "Executing mvn $INSTRUCTION $MAVEN_OPTIONS"
+    mvn $INSTRUCTION $MAVEN_OPTIONS
+fi
+
 TASK_STATUS=$?
 
 # Save the task status
 saveTaskStatus ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE}
+# saveTaskStatusNew ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE} "Executed mvn command" "Executed mvn $INSTRUCTION $MAVEN_OPTIONS"
+
 
 # Default XML scan (always runs for TEST)
 if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then
@@ -93,6 +126,7 @@ if [[ "$INSTRUCTION_TYPE" == "TEST" ]]; then
         TASK_STATUS=1
     fi
     saveTaskStatus ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE}
+    # saveTaskStatusNew ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE} "Analyzed mvn test reports" "Executed mvn $INSTRUCTION $MAVEN_OPTIONS" 
 fi
 
 # Custom HTML scan (only runs if ENABLE_CUSTOM_HTML_SCAN is true)
@@ -136,4 +170,5 @@ if [[ "$INSTRUCTION_TYPE" == "TEST" && "${ENABLE_CUSTOM_HTML_SCAN,,}" == "true" 
         TASK_STATUS=0
     fi
     saveTaskStatus ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE}
+    # saveTaskStatusNew ${TASK_STATUS} ${ACTIVITY_SUB_TASK_CODE} "Analyzed maven custom test report" "Executed mvn $INSTRUCTION $MAVEN_OPTIONS"
 fi
