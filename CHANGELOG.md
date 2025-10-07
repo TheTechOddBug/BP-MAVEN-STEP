@@ -227,3 +227,28 @@ Here’s the updated change log for version `2.5.2.3` incorporating your additio
 
 * Fully backward compatible.
 * No changes required in existing configurations.
+
+---
+
+**Tag:** `2.5.2.8`
+**Release Date:** *2025-10-08*
+**Maintainer:** *[Mukul Joshi](mukul.joshi@opstree.com), [GitHub](https://github.com/mukulmj)*
+
+### 🔄 Changes
+
+* **\[NEW]** Added dynamic handling for `SONAR_TESTING_TYPE` to auto-append suffixes (`-it` or `-ut`) to Sonar project keys and names.
+* **\[NEW]** Implemented `INSTRUCTION_TYPE=SONAR_SCAN` handling to execute Sonar-specific Maven commands.
+* **\[ENHANCED]** Added `MAVEN_SONAR_SCAN_INSTRUCTION` resolution inside instruction switch block.
+* **\[IMPROVED]** Ensured sensitive data (`SONAR_TOKEN`) is masked in logs for better security.
+
+### ✅ Impact
+
+* Enables SonarQube scans for both **unit** and **integration** testing pipelines automatically.
+* Prevents accidental exposure of secrets in logs.
+* Expands automation coverage for Maven Sonar scan workflows.
+
+### 📌 Notes
+
+* Backward compatible with all previous tags.
+* No configuration changes required.
+* Works seamlessly with both legacy and new pipeline configurations.
