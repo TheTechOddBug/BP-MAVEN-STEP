@@ -1,115 +1,168 @@
-# BP-MAVEN-STEP
+# 🧩 BP-MAVEN-STEP
 
-I'll use Maven to build the Java project.
+**BP-MAVEN-STEP** is a versatile BuildPiper marketplace step designed to **build, test, deploy, and analyze Java projects** using **Maven** — with **multi-JDK**, **multi-Maven**, **Node.js/NPM support**, **dynamic variable injection**, and **SonarQube integration**.
 
-## Setup
+---
 
-* Clone the code available at [BP-MAVEN-STEP](https://github.com/OT-BUILDPIPER-MARKETPLACE/BP-MAVEN-STEP)
-  ```bash
-  git clone git@github.com:OT-BUILDPIPER-MARKETPLACE/BP-MAVEN-STEP.git
-  ```
-* Build the Docker image
+## ⚙️ Setup
 
-  ```bash
-  git submodule init
-  git submodule update
-  # this image supports both multi java and maven support along with specific nodejs and npm version
-  docker build -t registry.buildpiper.in/maven-execute:npm-support .
-  # this image supports maven versions (3.6.3,3.8.1,3.5.4) and jdk versions (8,11,17)
-  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-air .
-  # this image supports maven versions (3.6.3,3.8.1,3.5.4) and jdk versions (8,11,17,21)
-  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-21 .
-  # this image supports maven versions (3.6.3,3.8.1,3.5.4) and jdk versions (8,11,17,21) with dynamic variables
-  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-21-vars .
-  # this image supports maven versions (3.6.3,3.8.1,3.5.4,3.9.9) and jdk versions (8,11,17,21) with dynamic variables
-  docker build -t registry.buildpiper.in/maven-execute:multi-jdk-21-3.9 .
-  ```
+### 1. Clone the Repository
 
-* Do local testing via the image only
+```bash
+git clone git@github.com:OT-BUILDPIPER-MARKETPLACE/BP-MAVEN-STEP.git
+cd BP-MAVEN-STEP
+```
 
-  ```bash
-  # Build code with default settings 
-  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ registry.buildpiper.in/maven-execute:multi-jdk-21-3.9
+### 2. Initialize Submodules
 
-  # Only compile the code
-  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ -e INSTRUCTION=compile registry.buildpiper.in/maven-execute:multi-jdk-21-3.9
+```bash
+git submodule init
+git submodule update
+```
 
-  # Build code with specific JDK and Maven versions
-  docker run -it --rm -v $PWD:/src -e WORKSPACE=/src -e CODEBASE_DIR=/ -e JAVA_VERSION=11 -e MAVEN_VERSION=3.8.1 registry.buildpiper.in/maven-execute:multi-jdk-21-3.9
-  ```
+---
 
-## Environment Variables Example
+## 🧪 Local Testing
+
+```bash
+# Default Maven build
+docker run -it --rm \
+  -v $PWD:/src \
+  -e WORKSPACE=/src \
+  -e CODEBASE_DIR=/ \
+  registry.buildpiper.in/maven-execute:latest
+
+# Compile only
+docker run -it --rm \
+  -v $PWD:/src \
+  -e WORKSPACE=/src \
+  -e CODEBASE_DIR=/ \
+  -e INSTRUCTION=compile \
+  registry.buildpiper.in/maven-execute:latest
+
+# Custom JDK + Maven versions
+docker run -it --rm \
+  -v $PWD:/src \
+  -e WORKSPACE=/src \
+  -e CODEBASE_DIR=/ \
+  -e JAVA_VERSION=11 \
+  -e MAVEN_VERSION=3.8.1 \
+  registry.buildpiper.in/maven-execute:latest
+```
+
+---
+
+## 🌍 Environment Variables
 
 ![Environment Variables Example](./maven-multi-jdk.png)
 
-| Variable                    | Description                               | Default    |
-| --------------------------- | ----------------------------------------- | ---------- |
-| `WORKSPACE`                 | Workspace directory containing code       | `/bp/workspace` |
-| `CODEBASE_DIR`              | Sub-directory within workspace            | `/`        |
-| `JAVA_VERSION`              | `8`, `11`, `17`, `21`                     | `8`        |
-| `MAVEN_VERSION`             | `3.6.3`, `3.8.1`, `3.5.4`, `3.9.9`        | `3.6.3`    |
-| `INSTRUCTION`               | Maven instruction (e.g., `clean install`) | `package`  |
-| `INSTRUCTION_TYPE`          | `BUILD`, `DEPLOY`, `TEST`, `CUSTOM`       | *`BUILD`*    |
-| `VALIDATION_FAILURE_ACTION` | `WARNING` or `FAILURE`                    | `WARNING`  |
-| `ENABLE_CUSTOM_HTML_SCAN`   | Enable parsing custom HTML test reports   | `false`    |
-| `TEST_FAILURE_THRESHOLD`    | Failure threshold (%)                     | `50`       |
-| `TEST_RESULT_DIR`           | Directory for test result files           | `/`        |
-| `SOURCE_VARIABLE_REPO`      | Repo for dynamic variables                | (Optional) |
-| `MAVEN_OPTIONS`  | any additional flags or parameters such as: -DskipTests=true |  (Optional)
+| Variable                    | Description                                                     | Default         |
+| --------------------------- | --------------------------------------------------------------- | --------------- |
+| `WORKSPACE`                 | Workspace directory containing code                             | `/bp/workspace` |
+| `CODEBASE_DIR`              | Sub-directory within workspace                                  | `/`             |
+| `JAVA_VERSION`              | JDK version: `8`, `11`, `17`, `21`, `22`, `23`, `24`            | `8`             |
+| `MAVEN_VERSION`             | Maven version: `3.5.4`, `3.6.3`, `3.8.1`, `3.9.9`               | `3.6.3`         |
+| `INSTRUCTION`               | Maven command or goal (e.g., `clean install`)                   | `package`       |
+| `INSTRUCTION_TYPE`          | `BUILD`, `DEPLOY`, `TEST`, `CUSTOM`, `SONAR_SCAN`               | `BUILD`         |
+| `SONAR_TESTING_TYPE`        | `Integration` → adds `-it`, `Unit` → adds `-ut`, default → none | (Optional)      |
+| `VALIDATION_FAILURE_ACTION` | `WARNING` or `FAILURE`                                          | `WARNING`       |
+| `ENABLE_CUSTOM_HTML_SCAN`   | Parse custom HTML test reports                                  | `false`         |
+| `TEST_FAILURE_THRESHOLD`    | Failure threshold (%)                                           | `50`            |
+| `TEST_RESULT_DIR`           | Directory for test result files                                 | `/`             |
+| `SOURCE_VARIABLE_REPO`      | Git repo for dynamic variables (`mavenrepos.json`)              | (Optional)      |
+| `MAVEN_OPTIONS`             | Additional Maven flags                                          | (Optional)      |
 
+---
 
-## Runtime Environment Details
+## ⚡ Runtime Behavior
 
-- **JAVA_VERSION**: 
-  - Set `JAVA_VERSION` to `8`, `11`, `17` or `21` to select the JDK version.
-  - **Default**: `8` (JDK 8).
-  - **Example**: `JAVA_VERSION=11` for JDK 11.
+### 1. **Automatic Java & Maven Switching**
 
-- **MAVEN_VERSION**: 
-  - Set `MAVEN_VERSION` to `3.6.3`, `3.8.1`, `3.9.9` or `3.5.4` to select the Maven version.
-  - **Default**: `3.6.3` (Maven 3.6.3).
-  - **Example**: `MAVEN_VERSION=3.8.1` for Maven 3.8.1.
+* Dynamically sets JDK and Maven.
+* Auto-validates combinations and defaults to `JDK 8 + Maven 3.6.3`.
 
-- **WORKSPACE**: 
-  - Define the workspace directory where the codebase is located.
-  - **Example**: `WORKSPACE=/src`.
+### 2. **Dynamic Variable Fetching**
 
-- **CODEBASE_DIR**: 
-  - Specify the sub-directory within the workspace where the codebase is located.
-  - **Example**: `CODEBASE_DIR=/`.
+* If `SOURCE_VARIABLE_REPO` is set:
 
-- **INSTRUCTION**: 
-  - Define the Maven command or instruction to be executed.
-  - **Default**: `package`.
-  - **Example**: `INSTRUCTION=clean install`.
+  * Clones repo at branch = `$APPLICATION_NAME`.
+  * Extracts vars like `TO`, `CC`, `BCC`, `DNS_URL`, `TELEGRAM_CHAT_ID`.
+  * Auto-applies them to environment.
 
-- **VALIDATION_FAILURE_ACTION**: 
-  - Control the behavior on validation failure.
-  - Options include `WARNING` (continue with warnings) or `FAILURE` (stop on failure).
-  - **Example**: `VALIDATION_FAILURE_ACTION=FAILURE`.
+### 3. **SonarQube Integration**
 
-**Fallback Mechanism**
-- `SOURCE_VARIABLE_REPO`: Specifies the source repository from which service details should be fetched. If this variable is defined, and the `INSTRUCTION` is missing, the script will trigger the `fetch_service_details` function to gather necessary information for executing the maven build logic. If `SOURCE_VARIABLE_REPO` is not defined, an error message will be logged, and fetching of service details will be skipped.
+* Enabled via `INSTRUCTION_TYPE=SONAR_SCAN`.
+* Supports suffix-based project naming via `SONAR_TESTING_TYPE`.
+* Example:
 
-## Notes:
+  * `Integration` → `project-it`
+  * `Unit` → `project-ut`
+* Sonar tokens are **masked in logs** for security.
 
-- If no values are provided for `JAVA_VERSION` or `MAVEN_VERSION`, the script will default to JDK 8 and Maven 3.6.3.
-- If incorrect values are supplied, the script will display usage instructions, defaulting to the predefined versions.
-- The environment variables allow for flexible and customized build configurations, ensuring compatibility across different JDK and Maven versions.
+### 4. **Smart Instruction Switching**
 
-## References
+If `INSTRUCTION` is not manually set:
 
-JAVA Versions: 
-[JDK-8](https://github.com/adoptium/temurin8-binaries/releases) || 
-[JDK-11](https://github.com/adoptium/temurin11-binaries/releases) || 
-[JDK-17](https://github.com/adoptium/temurin17-binaries/releases) || 
-[JDK-21](https://github.com/adoptium/temurin21-binaries/releases)
+```bash
+case "$INSTRUCTION_TYPE" in
+  BUILD)   INSTRUCTION=$MAVEN_BUILD_INSTRUCTION ;;
+  DEPLOY)  INSTRUCTION=$MAVEN_DEPLOY_INSTRUCTION ;;
+  TEST)    INSTRUCTION=$MAVEN_TEST_INSTRUCTION ;;
+  CUSTOM)  INSTRUCTION=$MAVEN_CUSTOM_INSTRUCTION ;;
+  SONAR_SCAN) INSTRUCTION=$MAVEN_SONAR_SCAN_INSTRUCTION ;;
+esac
+```
 
-MAVEN Versions: 
-[MAVEN-3.5.4](https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries) || 
-[MAVEN-3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries) || 
-[MAVEN-3.8.1](https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries) || 
-[MAVEN-3.9.9](https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries)
+---
 
+## 🧠 Fallback Mechanism
 
-[How to remove downloading messages from Maven log output](https://blogs.itemis.com/en/in-a-nutshell-removing-artifact-messages-from-maven-log-output)
+* If `SOURCE_VARIABLE_REPO` is **missing**, the script logs a warning and continues.
+* If **invalid versions** are supplied, the script reverts to safe defaults.
+* All Maven commands are logged **without exposing credentials**.
+
+---
+
+## 📚 References
+
+**JDK Releases:**
+
+* [JDK 8](https://github.com/adoptium/temurin8-binaries/releases)
+* [JDK 11](https://github.com/adoptium/temurin11-binaries/releases)
+* [JDK 17](https://github.com/adoptium/temurin17-binaries/releases)
+* [JDK 21](https://github.com/adoptium/temurin21-binaries/releases)
+* [JDK 22+](https://jdk.java.net/)
+
+**Maven Releases:**
+
+* [3.5.4](https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries)
+* [3.6.3](https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries)
+* [3.8.1](https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries)
+* [3.9.9](https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries)
+
+**Additional:**
+
+* [Remove Maven Download Logs](https://blogs.itemis.com/en/in-a-nutshell-removing-artifact-messages-from-maven-log-output)
+
+---
+
+## 🏷️ Release History
+
+| Version     | Date         | Maintainer                                    | Summary                                                                                                                                                                   |
+| ----------- | ------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **2.5.2.8** | *2025-10-08* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | ➕ Added `SONAR_TESTING_TYPE` for dynamic Sonar suffix (-it / -ut) <br> 🧠 Enhanced instruction handling for `SONAR_SCAN` <br> 🔒 Masked token from logs for Sonar command |
+| **2.5.2.7** | *2025-10-01* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | 🆕 Added Java version support for 22, 23, 24 <br> ✅ Full backward compatibility                                                                                           |
+| **2.5.2.6** | *2025-09-15* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | 🧩 Introduced dynamic variable fetching from `SOURCE_VARIABLE_REPO` <br> 📬 Integrated with `mavenrepos.json` parsing                                                     |
+| **2.5.2.5** | *2025-09-05* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | ⚡ Introduced multi-Maven (3.5.4–3.9.9) and multi-JDK (8–21) support <br> 🧱 Added image variant `multi-jdk-21-3.9`                                                        |
+| **2.5.2.4** | *2025-08-18* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | 🧹 Improved Maven instruction handling <br> 🔄 Refactored variable extraction logic                                                                                       |
+| **2.5.2.3** | *2025-08-05* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | 🪶 Added support for `MAVEN_OPTIONS` and `VALIDATION_FAILURE_ACTION`                                                                                                      |
+| **2.5.2.2** | *2025-07-28* | [Mukul Joshi](mailto:mukul.joshi@opstree.com) | 🧰 Initial version supporting `multi-jdk-air` and `npm-support` builds                                                                                                    |
+
+---
+
+## 🧾 Maintainer
+
+**Author:** Mukul Joshi
+**Email:** [mukul.joshi@opstree.com](mailto:mukul.joshi@opstree.com)
+**GitHub:** [@mukulmj](https://github.com/mukulmj)
+
